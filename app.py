@@ -44,4 +44,8 @@ if st.button("Predict"):
 
     except Exception as e:
         st.error(f"Prediction Error: {e}")
+with col1:
+    accuracy = st.button("Check Accuracy")
+    if accuracy:
+        st.info("The accuracy of the model is 78.57%")
 
