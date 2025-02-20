@@ -4,7 +4,7 @@ from sklearn.metrics import confusion_matrix ,accuracy_score,precision_score,f1_
 from sklearn.metrics import classification_report
 import streamlit as st # type: ignore
 st.set_page_config(page_title="Diabetes Prediction", layout="wide", page_icon="🧑‍⚕")
-diabetes_model_path = r"C:\Users\TR SKANDHA\Desktop\ML\diabetes_model.sav"
+diabetes_model_path = r"diabetes_model.sav"
 diabetes_model=pickle.load(open(diabetes_model_path, 'rb'))
 st.title("Diabetes Prediction using Machine Learning")
 col1, col2, col3 = st.columns(3)
