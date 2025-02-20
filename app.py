@@ -1,51 +1,67 @@
 import pickle
-import streamlit as st
-
-st.set_page_config(page_title="Diabetes Classifier", page_icon="🌺", layout="centered")
-
-# Load the model
+import pandas as pd
+from sklearn.metrics import confusion_matrix ,accuracy_score,precision_score,f1_score,recall_score,roc_auc_score,roc_curve
+from sklearn.metrics import classification_report
+import streamlit as st # type: ignore
+st.set_page_config(page_title="Diabetes Prediction", layout="wide", page_icon="🧑‍⚕")
 diabetes_model_path = r"C:\Users\TR SKANDHA\Desktop\ML\diabetes_model.sav"
-try:
-    with open(diabetes_model_path, 'rb') as model_file:
-        diabetes_model = pickle.load(model_file)
-except Exception as e:
-    st.error(f"Error loading model: {e}")
-    st.stop()
-
-st.title("Diabetes Prediction using ML")
-
-# Input fields
+diabetes_model=pickle.load(open(diabetes_model_path, 'rb'))
+st.title("Diabetes Prediction using Machine Learning")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    pregnancies = st.number_input("Pregnancies", min_value=0, step=1)
-    skin_thickness = st.number_input("Skin Thickness", min_value=0)
-    diabetes_pedigree_function = st.number_input("Diabetes Pedigree Function", min_value=0.0)
+    Pregnancies = st.text_input('Number of Pregnancies')
 
 with col2:
-    glucose = st.number_input("Glucose", min_value=0)
-    insulin = st.number_input("Insulin", min_value=0)
-    age = st.number_input("Age", min_value=0, max_value=81, step=1)
+    Glucose = st.text_input('Glucose Level')
 
 with col3:
-    blood_pressure = st.number_input("Blood Pressure", min_value=0)
-    bmi = st.number_input("BMI", min_value=0.0)
+    BloodPressure = st.text_input('Blood Pressure value')
 
-# Prediction Button
-if st.button("Predict"):
-    try:
-        input_data = [[pregnancies, glucose, blood_pressure, skin_thickness, insulin, bmi, diabetes_pedigree_function, age]]
-        prediction = diabetes_model.predict(input_data)
-
-        if prediction[0] == 1:
-            st.error("You have Diabetes")
-        else:
-            st.success("You don't have Diabetes")
-
-    except Exception as e:
-        st.error(f"Prediction Error: {e}")
 with col1:
-    accuracy = st.button("Check Accuracy")
-    if accuracy:
-        st.info("The accuracy of the model is 78.57%")
+    SkinThickness = st.text_input('Skin Thickness value')
 
+with col2:
+    Insulin = st.text_input('Insulin Level')
+
+with col3:
+    BMI = st.text_input('BMI value')
+
+with col1:
+    DiabetesPedigreeFunction = st.text_input('Diabetes Pedigree Function value')
+
+with col2:
+    Age = st.text_input('Age of the Person')
+
+# Prediction result
+diab_diagnosis = ''
+
+# Creating a button for Prediction
+if st.button('Diabetes Test Result'):
+    try:
+        
+        # Convert input to float
+        user_input = [float(Pregnancies), float(Glucose), float(BloodPressure), float(SkinThickness), 
+                      float(Insulin), float(BMI), float(DiabetesPedigreeFunction), float(Age)]
+        
+        # Make prediction
+        diab_prediction = diabetes_model.predict([user_input])
+
+        # Display result
+        if diab_prediction[0] == 1:
+            diab_diagnosis = 'The person is diabetic'
+        else:
+            diab_diagnosis = 'The person is not diabetic'
+
+        st.success(diab_diagnosis)
+    
+    except ValueError:
+        st.error("Please enter valid numerical values for all fields.")
+
+if st.button('Check Model Accuracy'):
+    test_data = pd.read_csv(r"diabetes.csv")
+    x_test = test_data.drop(columns=['Outcome'])
+    y_test = test_data['Outcome']
+    y_pred = diabetes_model.predict(x_test)
+    accuracy=accuracy_score(y_test, y_pred)
+    st.write(f"Model Accuracy on Test Data: {accuracy*100:.2f}%")
